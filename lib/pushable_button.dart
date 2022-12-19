@@ -18,7 +18,7 @@ class PushableButton extends StatefulWidget {
     this.onPressed,
     this.buttonDecoration,
     this.baseDecoration,
-    this.padding = const EdgeInsets.all(16),
+    this.padding,
   })  : assert(height > 0),
         super(key: key);
 
@@ -190,7 +190,7 @@ class _PushableButtonState extends AnimationControllerState<PushableButton> {
                                 shape: StadiumBorder(),
                               ),
                         child: Padding(
-                          padding: widget.padding!,
+                          padding: widget.padding ?? const EdgeInsets.all(16),
                           child: Center(child: widget.child),
                         ),
                       ),
