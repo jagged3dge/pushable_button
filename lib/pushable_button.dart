@@ -20,6 +20,7 @@ class PushableButton extends StatefulWidget {
     this.baseDecoration,
     this.padding = const EdgeInsets.all(16),
   })  : assert(height > 0),
+        assert(padding != null),
         super(key: key);
 
   /// Child widget (normally a Text or Icon)
@@ -50,8 +51,8 @@ class PushableButton extends StatefulWidget {
   /// An optional shadow to make the button look better
   /// This is added to the bottom layer only
   final BoxShadow? shadow;
-  
-  final EdgeInsets padding;
+
+  final EdgeInsets? padding;
 
   /// button pressed callback
   final VoidCallback? onPressed;
@@ -190,7 +191,7 @@ class _PushableButtonState extends AnimationControllerState<PushableButton> {
                                 shape: StadiumBorder(),
                               ),
                         child: Padding(
-                          padding: widget.padding,
+                          padding: widget.padding!,
                           child: Center(child: widget.child),
                         ),
                       ),
