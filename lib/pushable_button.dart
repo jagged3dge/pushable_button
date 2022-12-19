@@ -51,7 +51,7 @@ class PushableButton extends StatefulWidget {
   /// This is added to the bottom layer only
   final BoxShadow? shadow;
 
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? padding;
 
   /// button pressed callback
   final VoidCallback? onPressed;
@@ -190,7 +190,7 @@ class _PushableButtonState extends AnimationControllerState<PushableButton> {
                                 shape: StadiumBorder(),
                               ),
                         child: Padding(
-                          padding: widget.padding,
+                          padding: widget.padding!,
                           child: Center(child: widget.child),
                         ),
                       ),
