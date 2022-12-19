@@ -52,7 +52,7 @@ class PushableButton extends StatefulWidget {
   /// This is added to the bottom layer only
   final BoxShadow? shadow;
 
-  final EdgeInsets? padding;
+  final EdgeInsetsGeometry? padding;
 
   /// button pressed callback
   final VoidCallback? onPressed;
