@@ -11,35 +11,53 @@ class PushableButton extends StatefulWidget {
     this.child,
     required this.hslColor,
     required this.height,
-    this.elevation = 8.0,
+    this.width,
+    // this.elevation = 8.0,
+    this.offset = const Offset(0, 8),
     this.shadow,
     this.onPressed,
+    this.buttonDecoration,
+    this.baseDecoration,
+    this.padding = const EdgeInsets.all(16),
   })  : assert(height > 0),
         super(key: key);
 
-  /// child widget (normally a Text or Icon)
+  /// Child widget (normally a Text or Icon)
   final Widget? child;
 
   /// Color of the top layer
   /// The color of the bottom layer is derived by decreasing the luminosity by 0.15
   final HSLColor hslColor;
 
-  /// height of the top layer
+  /// Optional: Width of the top layer
+  final double? width;
+
+  /// Height of the top layer
   final double height;
 
-  /// elevation or "gap" between the top and bottom layer
-  final double elevation;
+  /// Elevation or "gap" between the top and bottom layer
+  // final double elevation;
+
+  /// Offset or "gap" between the top and bottom layer
+  final Offset offset;
+
+  /// Decoration of button
+  final BoxDecoration? buttonDecoration;
+
+  /// Decoration of button base (background)
+  final BoxDecoration? baseDecoration;
 
   /// An optional shadow to make the button look better
   /// This is added to the bottom layer only
   final BoxShadow? shadow;
+  
+  final EdgeInsets padding;
 
   /// button pressed callback
   final VoidCallback? onPressed;
 
   @override
-  _PushableButtonState createState() =>
-      _PushableButtonState(Duration(milliseconds: 100));
+  _PushableButtonState createState() => _PushableButtonState(Duration(microseconds: 233));
 }
 
 class _PushableButtonState extends AnimationControllerState<PushableButton> {
@@ -99,13 +117,17 @@ class _PushableButtonState extends AnimationControllerState<PushableButton> {
 
   @override
   Widget build(BuildContext context) {
-    final totalHeight = widget.height + widget.elevation;
+    // final totalHeight = widget.height + widget.elevation;
+    final totalHeight = widget.height + widget.offset.dy;
+
     return SizedBox(
+      width: widget.width,
       height: totalHeight,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final buttonSize = Size(constraints.maxWidth, constraints.maxHeight);
           return GestureDetector(
+            // onTap: _handleTap,
             onTapDown: _handleTapDown,
             onTapUp: _handleTapUp,
             onTapCancel: _handleTapCancel,
@@ -120,40 +142,57 @@ class _PushableButtonState extends AnimationControllerState<PushableButton> {
             child: AnimatedBuilder(
               animation: animationController,
               builder: (context, child) {
-                final top = animationController.value * widget.elevation;
+                final top = animationController.value * widget.offset.dy;
+                final left = animationController.value * widget.offset.dx * -1;
+                final right = animationController.value * widget.offset.dx;
+
                 final hslColor = widget.hslColor;
-                final bottomHslColor =
-                    hslColor.withLightness(hslColor.lightness - 0.15);
+                final bottomHslColor = hslColor.withLightness(hslColor.lightness - 0.15);
+
                 return Stack(
+                  clipBehavior: Clip.none,
                   children: [
                     // Draw bottom layer first
                     Positioned(
-                      left: 0,
-                      right: 0,
+                      left: 0 - widget.offset.dx,
+                      right: widget.offset.dx,
                       bottom: 0,
                       child: Container(
-                        height: totalHeight - top,
-                        decoration: BoxDecoration(
-                          color: bottomHslColor.toColor(),
-                          boxShadow:
-                              widget.shadow != null ? [widget.shadow!] : [],
-                          borderRadius:
-                              BorderRadius.circular(widget.height / 2),
-                        ),
+                        height: widget.height,
+                        decoration: widget.baseDecoration != null
+                            ? widget.baseDecoration!.copyWith(
+                                color: widget.baseDecoration!.color ?? bottomHslColor.toColor(),
+                                boxShadow: widget.baseDecoration!.boxShadow ??
+                                    (widget.shadow != null ? [widget.shadow!] : []),
+                                borderRadius: widget.baseDecoration!.borderRadius ??
+                                    BorderRadius.circular(widget.height / 2),
+                              )
+                            : BoxDecoration(
+                                color: bottomHslColor.toColor(),
+                                boxShadow: widget.shadow != null ? [widget.shadow!] : [],
+                                borderRadius: BorderRadius.circular(widget.height / 2),
+                              ),
                       ),
                     ),
                     // Then top (pushable) layer
                     Positioned(
-                      left: 0,
-                      right: 0,
+                      left: left,
+                      right: right,
                       top: top,
                       child: Container(
                         height: widget.height,
-                        decoration: ShapeDecoration(
-                          color: hslColor.toColor(),
-                          shape: StadiumBorder(),
+                        decoration: widget.buttonDecoration != null
+                            ? widget.buttonDecoration!.copyWith(
+                                color: widget.buttonDecoration!.color ?? hslColor.toColor(),
+                              )
+                            : ShapeDecoration(
+                                color: hslColor.toColor(),
+                                shape: StadiumBorder(),
+                              ),
+                        child: Padding(
+                          padding: widget.padding,
+                          child: Center(child: widget.child),
                         ),
-                        child: Center(child: widget.child),
                       ),
                     ),
                   ],
