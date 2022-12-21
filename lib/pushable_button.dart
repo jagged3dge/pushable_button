@@ -72,8 +72,20 @@ class _PushableButtonState extends AnimationControllerState<PushableButton> {
   }
 
   void _handleTapUp(TapUpDetails details) {
-    animationController.reverse();
-    widget.onPressed?.call();
+    if (animationController.isAnimating) {
+      void animationStatusChangeListener(AnimationStatus status) {
+        if (status == AnimationStatus.completed) {
+          animationController.reverse();
+          widget.onPressed?.call();
+          animationController.removeStatusListener(animationStatusChangeListener);
+        }
+      }
+
+      animationController.addStatusListener(animationStatusChangeListener);
+    } else {
+      animationController.reverse();
+      widget.onPressed?.call();
+    }
   }
 
   void _handleTapCancel() {
