@@ -57,7 +57,7 @@ class PushableButton extends StatefulWidget {
   final VoidCallback? onPressed;
 
   @override
-  _PushableButtonState createState() => _PushableButtonState(Duration(microseconds: 233));
+  _PushableButtonState createState() => _PushableButtonState(Duration(microseconds: 600));
 }
 
 class _PushableButtonState extends AnimationControllerState<PushableButton> {
@@ -138,79 +138,87 @@ class _PushableButtonState extends AnimationControllerState<PushableButton> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final buttonSize = Size(constraints.maxWidth, constraints.maxHeight);
-          return GestureDetector(
-            // onTap: _handleTap,
-            onTapDown: _handleTapDown,
-            onTapUp: _handleTapUp,
-            onTapCancel: _handleTapCancel,
-            onHorizontalDragStart: _handleDragStart,
-            onHorizontalDragEnd: (_) => _handleDragEnd(buttonSize),
-            onHorizontalDragCancel: _handleDragCancel,
-            onHorizontalDragUpdate: _handleDragUpdate,
-            onVerticalDragStart: _handleDragStart,
-            onVerticalDragEnd: (_) => _handleDragEnd(buttonSize),
-            onVerticalDragCancel: _handleDragCancel,
-            onVerticalDragUpdate: _handleDragUpdate,
-            child: AnimatedBuilder(
-              animation: animationController,
-              builder: (context, child) {
-                final top = animationController.value * widget.offset.dy;
-                final left = animationController.value * widget.offset.dx * -1;
-                final right = animationController.value * widget.offset.dx;
+          return AnimatedBuilder(
+            animation: animationController,
+            builder: (context, child) {
+              final top = animationController.value * widget.offset.dy;
+              final left = animationController.value * widget.offset.dx * -1;
+              final right = animationController.value * widget.offset.dx;
 
-                final hslColor = widget.hslColor;
-                final bottomHslColor = hslColor.withLightness(hslColor.lightness - 0.15);
+              final hslColor = widget.hslColor;
+              final bottomHslColor = hslColor.withLightness(hslColor.lightness - 0.15);
 
-                return Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    // Draw bottom layer first
-                    Positioned(
-                      left: 0 - widget.offset.dx,
-                      right: widget.offset.dx,
-                      bottom: 0,
-                      child: Container(
-                        height: widget.height,
-                        decoration: widget.baseDecoration != null
-                            ? widget.baseDecoration!.copyWith(
-                                color: widget.baseDecoration!.color ?? bottomHslColor.toColor(),
-                                boxShadow: widget.baseDecoration!.boxShadow ??
-                                    (widget.shadow != null ? [widget.shadow!] : []),
-                                borderRadius: widget.baseDecoration!.borderRadius ??
-                                    BorderRadius.circular(widget.height / 2),
-                              )
-                            : BoxDecoration(
-                                color: bottomHslColor.toColor(),
-                                boxShadow: widget.shadow != null ? [widget.shadow!] : [],
-                                borderRadius: BorderRadius.circular(widget.height / 2),
-                              ),
-                      ),
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // Draw bottom layer first
+                  Positioned(
+                    left: 0 - widget.offset.dx,
+                    right: widget.offset.dx,
+                    bottom: 0,
+                    child: Container(
+                      height: widget.height,
+                      decoration: widget.baseDecoration != null
+                          ? widget.baseDecoration!.copyWith(
+                              color: widget.baseDecoration!.color ?? bottomHslColor.toColor(),
+                              boxShadow: widget.baseDecoration!.boxShadow ??
+                                  (widget.shadow != null ? [widget.shadow!] : []),
+                              borderRadius: widget.baseDecoration!.borderRadius ??
+                                  BorderRadius.circular(widget.height / 2),
+                            )
+                          : BoxDecoration(
+                              color: bottomHslColor.toColor(),
+                              boxShadow: widget.shadow != null ? [widget.shadow!] : [],
+                              borderRadius: BorderRadius.circular(widget.height / 2),
+                            ),
                     ),
-                    // Then top (pushable) layer
-                    Positioned(
-                      left: left,
-                      right: right,
-                      top: top,
-                      child: Container(
-                        height: widget.height,
-                        decoration: widget.buttonDecoration != null
-                            ? widget.buttonDecoration!.copyWith(
-                                color: widget.buttonDecoration!.color ?? hslColor.toColor(),
-                              )
-                            : ShapeDecoration(
-                                color: hslColor.toColor(),
-                                shape: StadiumBorder(),
-                              ),
-                        child: Padding(
-                          padding: widget.padding ?? const EdgeInsets.all(16),
-                          child: Center(child: widget.child),
+                  ),
+                  // Then top (pushable) layer
+                  Positioned(
+                    left: left,
+                    right: right,
+                    top: top,
+                    child: Container(
+                      height: widget.height,
+                      // decoration: widget.buttonDecoration != null
+                      //     ? widget.buttonDecoration!.copyWith(
+                      //         color: widget.buttonDecoration!.color ?? hslColor.toColor(),
+                      //       )
+                      //     : ShapeDecoration(
+                      //         color: hslColor.toColor(),
+                      //         shape: StadiumBorder(),
+                      //       ),
+                      child: Material(
+                        color: hslColor.toColor(),
+                        clipBehavior: Clip.antiAlias,
+                        borderRadius:
+                            // widget.buttonDecoration?.borderRadius ?? BorderRadius.all(Radius.circular(16.0)),
+                            widget.buttonDecoration?.borderRadius ?? BorderRadius.circular(16),
+                        child: InkWell(
+                          // onTap: _handleTap,
+                          onTapDown: _handleTapDown,
+                          onTapUp: _handleTapUp,
+                          onTapCancel: _handleTapCancel,
+                          // onHorizontalDragStart: _handleDragStart,
+                          // onHorizontalDragEnd: (_) => _handleDragEnd(buttonSize),
+                          // onHorizontalDragCancel: _handleDragCancel,
+                          // onHorizontalDragUpdate: _handleDragUpdate,
+                          // onVerticalDragStart: _handleDragStart,
+                          // onVerticalDragEnd: (_) => _handleDragEnd(buttonSize),
+                          // onVerticalDragCancel: _handleDragCancel,
+                          // onVerticalDragUpdate: _handleDragUpdate,
+                          splashColor: bottomHslColor.toColor(),
+                          child: Padding(
+                            padding: widget.padding ?? const EdgeInsets.all(16),
+                            child: Center(child: widget.child),
+                          ),
                         ),
                       ),
                     ),
-                  ],
-                );
-              },
-            ),
+                  ),
+                ],
+              );
+            },
           );
         },
       ),
