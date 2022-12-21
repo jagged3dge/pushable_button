@@ -19,6 +19,7 @@ class PushableButton extends StatefulWidget {
     this.buttonDecoration,
     this.baseDecoration,
     this.padding,
+    this.easingCurve = Curves.elasticIn,
   })  : assert(height > 0),
         super(key: key);
 
@@ -56,12 +57,14 @@ class PushableButton extends StatefulWidget {
   /// button pressed callback
   final VoidCallback? onPressed;
 
+  final Curve easingCurve;
+
   @override
-  _PushableButtonState createState() => _PushableButtonState(Duration(microseconds: 600));
+  _PushableButtonState createState() => _PushableButtonState(Duration(milliseconds: 233), easingCurve);
 }
 
 class _PushableButtonState extends AnimationControllerState<PushableButton> {
-  _PushableButtonState(Duration duration) : super(duration);
+  _PushableButtonState(Duration duration, Curve easingCurve) : super(duration, easingCurve);
 
   bool _isDragInProgress = false;
   Offset _gestureLocation = Offset.zero;
@@ -77,11 +80,11 @@ class _PushableButtonState extends AnimationControllerState<PushableButton> {
         if (status == AnimationStatus.completed) {
           animationController.reverse();
           widget.onPressed?.call();
-          animationController.removeStatusListener(animationStatusChangeListener);
+          animation.removeStatusListener(animationStatusChangeListener);
         }
       }
 
-      animationController.addStatusListener(animationStatusChangeListener);
+      animation.addStatusListener(animationStatusChangeListener);
     } else {
       animationController.reverse();
       widget.onPressed?.call();
@@ -139,11 +142,11 @@ class _PushableButtonState extends AnimationControllerState<PushableButton> {
         builder: (context, constraints) {
           final buttonSize = Size(constraints.maxWidth, constraints.maxHeight);
           return AnimatedBuilder(
-            animation: animationController,
+            animation: animation,
             builder: (context, child) {
-              final top = animationController.value * widget.offset.dy;
-              final left = animationController.value * widget.offset.dx * -1;
-              final right = animationController.value * widget.offset.dx;
+              final top = animation.value * widget.offset.dy;
+              final left = animation.value * widget.offset.dx * -1;
+              final right = animation.value * widget.offset.dx;
 
               final hslColor = widget.hslColor;
               final bottomHslColor = hslColor.withLightness(hslColor.lightness - 0.15);
